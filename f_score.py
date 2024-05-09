@@ -11,7 +11,7 @@ train_set = pd.DataFrame()
 company_num = [0, ]
 cost = 1.585
 for i in range(1, 12): #11個季度為樣本內資料
-  data = pd.read_csv("FS/"+str(i)+".csv", index_col='code')
+  data = pd.read_csv("FS/"+str(i)+".csv", index_col='code') #引入財報特徵
   data = data.apply(pd.to_numeric, errors='coerce')
   data = data.drop(['name', 'return', 'annual_return'], axis=1)
   data = data.dropna()
@@ -36,7 +36,7 @@ for i in range(1, 12): #11個季度為樣本內資料
 
   company = list(train_set.index)
 
-  data_ret = pd.read_csv("Return/"+str(i+1)+".csv", index_col='t')
+  data_ret = pd.read_csv("Return/"+str(i+1)+".csv", index_col='t') #引入報酬率資料
   try:
     data_ret = data_ret.drop(None)
   except:
@@ -90,7 +90,7 @@ perform = pd.DataFrame()
 test_set = pd.DataFrame()
 company_num = [0, ]
 for i in range(12, 20): #8個季度為樣本外資料
-  data = pd.read_csv("FS/"+str(i)+".csv", index_col='code')
+  data = pd.read_csv("FS/"+str(i)+".csv", index_col='code') #引入財報特徵
   data = data.apply(pd.to_numeric, errors='coerce')
   data = data.drop(['name', 'return', 'annual_return'], axis=1)
   data = data.dropna()
@@ -115,7 +115,7 @@ for i in range(12, 20): #8個季度為樣本外資料
 
   company = list(test_set.index)
 
-  data_ret = pd.read_csv("Return/"+str(i+1)+".csv", index_col='t')
+  data_ret = pd.read_csv("Return/"+str(i+1)+".csv", index_col='t') #引入報酬率資料
   try:
     data_ret = data_ret.drop(None)
   except:

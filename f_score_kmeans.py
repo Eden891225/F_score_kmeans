@@ -2,13 +2,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
-from sklearn.metrics import silhouette_score
 
 '''訓練模型'''
 
 train_set = pd.DataFrame()
 for i in range(1, 12): #11個季度為樣本內資料
-  data = pd.read_csv("FS/"+str(i)+".csv", index_col='code')
+  data = pd.read_csv("FS/"+str(i)+".csv", index_col='code') #引入財報特徵
   data = data.apply(pd.to_numeric, errors='coerce')
   data = data.drop(['name', 'return', 'annual_return'], axis=1)
   #常態化數據
@@ -29,18 +28,17 @@ for i in range(1, 12): #11個季度為樣本內資料
 
 model = KMeans(n_clusters=10, random_state=42, n_init='auto')
 F_pred = model.fit_predict(train_set)
-print(silhouette_score(train_set, model.labels_))
 train_set['F'] = F_pred
 
 '''樣本內'''
 
-group1 = 7 #設定K-means群名
+group = 7 #設定K-means群名
 perform = pd.DataFrame()
 train_set = pd.DataFrame()
 cost = 1.585
 company_num = [0, ]
 for i in range(1, 12): #11個季度為樣本內資料
-  data = pd.read_csv("FS/"+str(i)+".csv", index_col='code')
+  data = pd.read_csv("FS/"+str(i)+".csv", index_col='code') #引入財報特徵
   data = data.apply(pd.to_numeric, errors='coerce')
   data = data.drop(['name', 'return', 'annual_return'], axis=1)
   data = data.dropna()
@@ -63,10 +61,10 @@ for i in range(1, 12): #11個季度為樣本內資料
 
   train_set = train_set.apply(pd.to_numeric, errors='coerce')
   train_set = train_set.dropna()
-  train_set = train_set[(train_set['F']==group1)]
+  train_set = train_set[(train_set['F']==group)]
   company = list(train_set.index)
 
-  data_ret = pd.read_csv("Return/"+str(i+1)+".csv", index_col='t')
+  data_ret = pd.read_csv("Return/"+str(i+1)+".csv", index_col='t') #引入報酬率資料
   try:
     data_ret = data_ret.drop(None)
   except:
@@ -119,15 +117,17 @@ print(f'{round(annual_return/annual_std, 2)}')
 print(f'{MDD}%')
 print(f'{round(cum_return / MDD, 2)}')
 
+'''樣本外'''
+
 perform = pd.DataFrame()
-train_set = pd.DataFrame()
+test_set = pd.DataFrame()
 company_num = [0, ]
 for i in range(12, 20): #8個季度為樣本外資料
-  data = pd.read_csv("FS/"+str(i)+".csv", index_col='code')
+  data = pd.read_csv("FS/"+str(i)+".csv", index_col='code') #引入財報特徵
   data = data.apply(pd.to_numeric, errors='coerce')
   data = data.drop(['name', 'return', 'annual_return'], axis=1)
   data = data.dropna()
-  train_set = data
+  test_set = data
   #常態化數據
   data['ROA_now'] = (data['ROA_now']) / data['ROA_now'].std()
   data['CFO'] = (data['CFO']) / data['CFO'].std()
@@ -142,20 +142,15 @@ for i in range(12, 20): #8個季度為樣本外資料
   data = data.clip(lower=0)
   #分群
   F_pred = model.predict(data)
-  train_set['F'] = F_pred
+  test_set['F'] = F_pred
 
-  train_set = train_set.apply(pd.to_numeric, errors='coerce')
-  train_set = train_set.dropna()
-  train_set = train_set[(train_set['F']==group1)]
+  test_set = test_set.apply(pd.to_numeric, errors='coerce')
+  test_set = test_set.dropna()
+  test_set = test_set[(test_set['F']==group)]
 
-  company = list(train_set.index)
+  company = list(test_set.index)
 
-  train_set = train_set.apply(pd.to_numeric, errors='coerce')
-  train_set = train_set.dropna()
-  train_set = train_set[(train_set['F']==group1)]
-  company = list(train_set.index)
-
-  data_ret = pd.read_csv("Return/"+str(i+1)+".csv", index_col='t')
+  data_ret = pd.read_csv("Return/"+str(i+1)+".csv", index_col='t') #引入報酬率資料
   try:
     data_ret = data_ret.drop(None)
   except:
